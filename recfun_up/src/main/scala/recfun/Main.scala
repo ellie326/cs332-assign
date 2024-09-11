@@ -26,7 +26,7 @@ object Main {
    * Exercise 2
    */
   def balance(chars: List[Char]): Boolean = {
-    def counting(chars: List[Char], count: Int): Boolean = {
+    def countingPair(chars: List[Char], count: Int): Boolean = {
       // when there exists more closing parenthesis than opening parenthesis
       if (count < 0) false
       // if empty, check whether there are same number of opening and closing parenthesis
@@ -34,14 +34,14 @@ object Main {
       else {
         val headChar = chars.head
         val tailChar = chars.tail
-        counting(tailChar,
+        countingPair(tailChar,
           if (headChar == '(') count + 1
           else if (headChar == ')') count - 1
           else count
         )
       }
     }
-    counting(chars, 0)
+    countingPair(chars, 0)
   }
 
   /**
