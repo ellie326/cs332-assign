@@ -68,8 +68,6 @@ abstract class TweetSet {
    */
   def mostRetweeted: Tweet
 
-  def isEmpty : Boolean
-
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
    * in descending order. In other words, the head of the resulting list should
@@ -80,6 +78,8 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def descendingByRetweet: TweetList
+
+  def isEmpty: Boolean
 
   /**
    * The following methods are already implemented
@@ -115,9 +115,9 @@ class Empty extends TweetSet {
 
   def union(that: TweetSet): TweetSet = that
 
-  def isEmpty : Boolean = true
+  override def isEmpty: Boolean = true
 
-  def mostRetweeted: Tweet = throw new NoSuchElementException("This is an empty set")
+  def mostRetweeted: Tweet = throw new java.util.NoSuchElementException
 
   def descendingByRetweet: TweetList = Nil
 
@@ -154,25 +154,33 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     right.union(leftUnion).incl(elem)
   }
 
-  def isEmpty : Boolean = false
+  override def isEmpty : Boolean = false
 
   def mostRetweeted: Tweet = {
-    val mostRetweetedLeft = if (!left.isInstanceOf[Empty]) left.mostRetweeted else elem
-
-    val mostRetweetedRight = if (!right.isInstanceOf[Empty]) right.mostRetweeted else elem
-
-    val mostBetweenElemAndLeft = if (mostRetweetedLeft.retweets > elem.retweets) mostRetweetedLeft else elem
-
-    if (mostRetweetedRight.retweets > mostBetweenElemAndLeft.retweets) mostRetweetedRight else mostBetweenElemAndLeft
+    if (left.isEmpty && right.isEmpty) elem // 왼쪽과 오른쪽 서브트리가 모두 비어 있는 경우
+    else if (left.isEmpty) { // 왼쪽 서브트리가 비어 있을 때
+      val rightMost = right.mostRetweeted
+      if (rightMost.retweets > elem.retweets) rightMost else elem
+    } else if (right.isEmpty) { // 오른쪽 서브트리가 비어 있을 때
+      val leftMost = left.mostRetweeted
+      if (leftMost.retweets > elem.retweets) leftMost else elem
+    } else { // 왼쪽과 오른쪽 서브트리가 모두 비어있지 않을 때
+      val leftMost = left.mostRetweeted
+      val rightMost = right.mostRetweeted
+      val mostBetweenLeftAndElem = if (leftMost.retweets > elem.retweets) leftMost else elem
+      if (rightMost.retweets > mostBetweenLeftAndElem.retweets) rightMost else mostBetweenLeftAndElem
+    }
   }
+
 
   def descendingByRetweet: TweetList = {
-    val mostRetweetedElem = this.mostRetweeted
-
-    val remainingSet = this.remove(mostRetweetedElem)
-
-    new Cons(mostRetweetedElem, remainingSet.descendingByRetweet)
-  }
+    if (this.isEmpty) Nil
+    else {
+      val mostRetweetedElem = this.mostRetweeted
+      val remainingSet = this.remove(mostRetweetedElem)
+      new Cons(mostRetweetedElem, remainingSet.descendingByRetweet)
+    }
+    }
 
   /**
    * The following methods are already implemented
