@@ -1,4 +1,4 @@
-# Summary of <<Mythical Man-Month>>
+# Summary of the Mythical Man-Month
 ## Chapter 1 The Tar Pit 
 Definition of the Tar Pit: "A complicated or difficult situation or problem."
 
